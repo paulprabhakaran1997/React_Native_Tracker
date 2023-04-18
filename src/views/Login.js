@@ -11,30 +11,28 @@ import {
     KeyboardAvoidingView,
     ScrollView,
     Alert,
+    Dimensions,
 } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { Fragment, useContext, useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import GlobalStyle from '../styles/GlobalStyle.js'
-import DataContext from '../context/DataContext.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { hideLoader, showLoader } from '../redux/reducers/loaderReducer.js';
 import { addUser } from '../redux/reducers/userReducer.js';
 import { setLoggedUser } from '../redux/reducers/loginReducer.js';
 import { setTimeSheetData } from '../redux/reducers/timeSheetReducer.js';
-// import Snow from 'react-native-snow-bg';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import OTPInputView from '@twotalltotems/react-native-otp-input';
 
-
-const DismissKeyboard = ({children}) => (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss() }>
-        {children}
-    </TouchableWithoutFeedback>
-)
 
 const Login = () => {
     // console.log(UserData);
     const [userName , setUserName] = useState('');
     const [password , setPassword] = useState('');
+    const [accountId , setAccountId] = useState('')
+    const [showAccountView , setShowAccountView] = useState(true)
+    const [showLoginView , setShowLoginView] = useState(false);
 
 
     const dispatch = useDispatch()
@@ -51,6 +49,8 @@ const Login = () => {
     const { timeSheetData } = useSelector((state) => state.timeSheetReducer);
     console.log("TimeSheet Data = " , timeSheetData);
 
+
+    // Fetch API Onload
 
     const getUserData = async () =>{
         try{
@@ -131,6 +131,20 @@ const Login = () => {
         Alert.alert('Warning' , msg)
     }
 
+    const validateAcoount = () => {
+        Keyboard.dismiss();
+
+        if((accountId.trim()).length !== 0){
+            setShowAccountView(false);
+            setShowLoginView(true)
+        }
+        else {
+            setAlert('Please Enter Account Id')
+        }
+
+        
+    }
+
     const validateUser = async() => {
         Keyboard.dismiss();
 
@@ -148,7 +162,8 @@ const Login = () => {
                 if(isValidUser.length !== 0){
                     try{
                         await AsyncStorage.setItem('LoggedUser' , JSON.stringify(isValidUser[0]));
-                        dispatch(setLoggedUser(isValidUser[0]))
+                        dispatch(setLoggedUser(isValidUser[0]));
+                        setAccountId("");
                         setUserName('');
                         setPassword('');
                         dispatch(showLoader())
@@ -176,26 +191,17 @@ const Login = () => {
         
     }
 
-    
-  
-
-
     return (
-        <DismissKeyboard>
+        <Fragment>
             {!isLoading ? (
                 <KeyboardAvoidingView
-                    style={{ flex: 1 }}
+                    style={{ flex: 1}}
                     behavior='padding'
                     enabled={false}
                 >
-                    <View style={styles.headerContent}></View>
-                    <View
-                        style={{ flex: 11 }}
-                    >
-                        <ScrollView>
+                    <View style={{ flex: 1}}>
+                        <ScrollView contentContainerStyle={{ flexGrow : 1, justifyContent : 'center' }}>
                             <View style={styles.body}>
-                                {/* <Snow fullScreen snowflakesCount={100} fallSpeed="medium" /> */}
-
                                 <Image
                                     style={styles.logo}
                                     source={require('../assets/img/logo.png')}
@@ -203,51 +209,93 @@ const Login = () => {
                                 />
                                 <Text style={styles.companyName}>LC Tracker</Text>
                                 <Text style={styles.loginText}>Login</Text>
-                                <View style={styles.loginDetailsView}>
-                                    <Text style={styles.label}>Email / Phone</Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        value={userName}
-                                        onChangeText={(e) => setUserName(e)}
-                                    />
-                                    <Text style={styles.label}>Password</Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        // secureTextEntry
-                                        value={password}
-                                        onChangeText={(e) => setPassword(e)}
-                                    />
-                                    <TouchableOpacity
-                                        style={styles.loginBtn}
-                                        onPress={() => validateUser()}
-                                    >
-                                        <Text style={{ fontSize: 15, color: 'white' }}>Login</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity>
-                                        <Text style={styles.link}>
-                                            Forget Password ?
-                                        </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => history.navigate('Signup')}>
-                                        <Text style={styles.link}>
-                                            Not a User / SignUp ?
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
 
+                                <View>
+                                    {showAccountView && (
+                                        <View style={styles.accountDetailsView}>
+                                            {/* <Text style={styles.label}>Enter Account Id</Text> */}
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="Account Id"
+                                                value={accountId}
+                                                onChangeText={(e) => setAccountId(e)}
+                                            />
+                                            <TouchableOpacity
+                                                style={styles.loginBtn}
+                                                onPress={() => validateAcoount()}
+                                            >
+                                                <Text style={{ fontSize: 15, color: 'white' }}>Next</Text>
+                                            </TouchableOpacity>
+                                            {/* <OTPInputView
+                                                style={{width: '80%', height: 200}} 
+                                                pinCount={4}
+                                                codeInputFieldStyle={styles.underlineStyleBase}
+                                                codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                                                onCodeFilled={(code => {
+                                                    console.log(`Code is ${code}, you are good to go!`)
+                                                })}
+                                                editable
+                                                clearInputs
+                                                placeholderCharacter="*"
+                                                placeholderTextColor="grey"
+                                                keyboardAppearance="dark"
+                                            /> */}
+                                        </View>
+                                    )}
+                                    {showLoginView && (
+                                        <View style={styles.loginDetailsView}>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="Username"
+                                                value={userName}
+                                                onChangeText={(e) => setUserName(e)}
+                                            />
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="Password"
+                                                // secureTextEntry
+                                                value={password}
+                                                onChangeText={(e) => setPassword(e)}
+                                            />
+                                            <View>
+                                                <TouchableOpacity
+                                                    style={styles.loginBtn}
+                                                    onPress={() => validateUser()}
+                                                >
+                                                    <Text style={{ fontSize: 15, color: 'white' }}>Login</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity
+                                                    onPress={() => { setShowLoginView(false); setShowAccountView(true) }}
+                                                >
+                                                    <Text style={styles.link}>
+                                                        <FontAwesome5
+                                                            name="arrow-left"
+                                                            style={{ fontSize: 14 }}
+                                                        />
+                                                        &nbsp;
+                                                        Back
+                                                    </Text>
+                                                </TouchableOpacity>
+                                                {/* <TouchableOpacity onPress={() => history.navigate('Signup')}>
+                                                    <Text style={styles.link}>
+                                                        Not a User / SignUp ?
+                                                    </Text>
+                                                </TouchableOpacity> */}
+                                            </View>
+
+                                        </View>
+                                    )}
+                                </View>
                             </View>
                         </ScrollView>
                     </View>
-                    
-                    <View style={styles.footerContent}></View>
-                </KeyboardAvoidingView>
-                
+                </KeyboardAvoidingView>    
             ) : (
                 <View style={GlobalStyle.body}>
                     <Image style={styles.logo} source={require('../assets/img/loader.gif')} />
                 </View>
             )}
-        </DismissKeyboard>
+        </Fragment>
     )
 }
 
@@ -259,16 +307,14 @@ const styles = StyleSheet.create({
         marginTop : 15
     },
     headerContent : {
-        flex : 0.5,
         backgroundColor : '#009999',
         borderBottomLeftRadius : 100,
         borderBottomRightRadius : 100,
     },
     footerContent : {
-        flex : 0.5,
         backgroundColor : '#009999',
         borderTopLeftRadius : 100,
-        borderTopRightRadius : 100
+        borderTopRightRadius : 100,
     },
     logo:{
         width:125,
@@ -288,6 +334,9 @@ const styles = StyleSheet.create({
         fontWeight : 'bold',
         marginBottom : 15
     },
+    accountDetailsView : {
+        marginTop : 15,
+    },
     loginDetailsView:{
         marginTop : 15
     },
@@ -297,13 +346,13 @@ const styles = StyleSheet.create({
         textAlign : 'center'
     },
     input : {
-        borderWidth : 0.5,
+        borderWidth : 1,
         borderColor : 'lightgrey',
+        borderRadius : 5,
         paddingHorizontal:5,
         paddingVertical : 2,
         width : 170,
         marginBottom : 15,
-        textAlign:'center',
     },
     loginBtn:{
         backgroundColor : '#009999',
@@ -318,9 +367,23 @@ const styles = StyleSheet.create({
     link:{
         color:'#009999',
         textAlign:'center',
-        textDecorationLine: "underline",
+        textDecorationLine: "none",
         textDecorationStyle: "solid",
-        marginBottom:12
+        marginBottom:12,
+        fontSize : 16,
+        marginRight : 5
+    },
+    underlineStyleBase: {
+        width: 30,
+        height: 45,
+        borderWidth: 1,
+        borderBottomWidth: 1,
+        color : 'black',
+        borderColor: "lightgrey",
+    },
+
+    underlineStyleHighLighted: {
+        borderColor: "#03DAC6",
     },
 })
 

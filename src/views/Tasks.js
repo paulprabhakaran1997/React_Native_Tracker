@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native'
 import React, { useState , useEffect } from 'react'
 import GlobalStyle from '../styles/GlobalStyle'
 import WebView from 'react-native-webview';
@@ -147,11 +147,17 @@ const Tasks = () => {
 
   // Geolocation Map
 
+  const { height , width } = Dimensions.get('window');
+  console.log('Height = ' , height , " Width = " , width);
+  const LATITUDE_DELTA = 0.008;
+  const LONGITUDE_DELTA = LATITUDE_DELTA * ( width / height );
+  console.log('LONGITUDE_DELTA = ' , LONGITUDE_DELTA)
+
   const [userLocation , setUserLocation ] = useState({
     latitude : 0.0,
     longitude : 0.0,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LONGITUDE_DELTA,
   });
 
   const [newLocation , setNewLocation] = useState({

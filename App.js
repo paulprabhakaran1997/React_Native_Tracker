@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useState } from 'react';
 import {
+  LogBox,
   StyleSheet,
   Text,
   View,
@@ -23,6 +24,8 @@ import Camera from './src/views/Camera';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
+
+LogBox.ignoreAllLogs()
 
 
 const App = () =>{

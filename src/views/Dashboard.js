@@ -60,10 +60,11 @@ const Dashboard = () => {
               tabBarActiveTintColor: 'ivory',
               tabBarInactiveTintColor: '#BEBCBC',
               tabBarShowLabel: false,
-              tabBarStyle: { backgroundColor: '#009999', width: '100%', textAlign: 'center' },
+              tabBarStyle: { backgroundColor: '#009999', width: '100%', textAlign: 'center'},
               headerShown: false,
               tabBarShowIcon: true,
-              swipeEnabled : false
+              swipeEnabled : false,
+              animationEnabled : true,
           })}
       >
           <Tab.Screen
